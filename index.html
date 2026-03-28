@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pa">
 <head>
     <meta charset="UTF-8">
@@ -143,7 +143,6 @@
             font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
         }
 
-        /* Symbol keys don't have English letters, so we center the main text */
         .symbol-key .punj {
             margin-top: 0;
             font-size: 22px;
@@ -174,29 +173,48 @@
             margin-top: 6px;
         }
 
+        /* =========================================
+           MOBILE RESPONSIVENESS STYLES
+           ========================================= */
         @media (max-width: 650px) {
-            body { padding: 10px; }
+            body { padding: 8px; }
             .container { padding: 10px; }
             h2 { font-size: 20px; margin-bottom: 10px; }
-            textarea { font-size: 20px; height: 90px; padding: 10px; }
+            
+            textarea { 
+                font-size: 22px; 
+                height: 180px; /* Doubled height for mobile */
+                padding: 10px; 
+            }
+            
             .action-btn { padding: 10px; font-size: 14px; }
             .keyboard { padding: 5px; }
             #main-keys, #symbol-keys { gap: 4px; }
             .key-row { gap: 2px; }
             .row-2 { padding-left: 10px; padding-right: 10px; }
             .row-3 { padding-left: 0px; padding-right: 0px; }
-            .key { height: 45px; border-radius: 4px; border-bottom-width: 2px; }
+            
+            .key { 
+                height: 50px; /* 10% larger than previous 45px */
+                border-radius: 4px; 
+                border-bottom-width: 2px; 
+            }
+            
             .key .eng { font-size: 9px; top: 2px; left: 3px; }
-            .key .punj { font-size: 18px; margin-top: 6px; }
-            .symbol-key .punj { font-size: 18px; }
+            .key .punj { 
+                font-size: 20px; /* 10% larger than previous 18px */
+                margin-top: 6px; 
+            }
+            .symbol-key .punj { font-size: 20px; }
             .key.control { font-size: 13px; }
-            #key-addak .punj { font-size: 20px; }
+            #key-addak .punj { font-size: 22px; }
         }
 
+        /* Ultra small screens */
         @media (max-width: 380px) {
-            .key { height: 40px; }
-            .key .punj { font-size: 16px; }
-            .symbol-key .punj { font-size: 16px; }
+            .key { height: 44px; /* 10% larger than previous 40px */ }
+            .key .punj { font-size: 18px; }
+            .symbol-key .punj { font-size: 18px; }
             .key .eng { display: none; } 
             .key.control { font-size: 11px; }
         }
@@ -207,7 +225,7 @@
     <div class="container">
         <h2>Gurmukhi Smart Keyboard</h2>
         
-        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus></textarea>
+        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus inputmode="none"></textarea>
         
         <div class="action-buttons">
             <button class="action-btn" onclick="copyText()">Copy Text</button>
@@ -364,10 +382,9 @@
             }
         }
 
-        // Toggles Shift State across both Layouts
         function toggleShift() {
             isShifted = !isShifted;
-            const keys = document.querySelectorAll('.key[data-lower]'); // Gets all keys with data-lower property
+            const keys = document.querySelectorAll('.key[data-lower]'); 
             const shiftBtns = document.querySelectorAll('.shift-btn');
             
             keys.forEach(key => {
@@ -375,13 +392,11 @@
                 const punjSpan = key.querySelector('.punj');
                 
                 if (isShifted) {
-                    // Update main English text if it exists (only on main layout)
                     if(engSpan) engSpan.textContent = key.getAttribute('data-eng-upper');
                     punjSpan.textContent = key.getAttribute('data-upper');
                 } else {
                     if(engSpan) engSpan.textContent = key.getAttribute('data-eng-lower');
                     
-                    // Special rule for our visual Addak key
                     if (key.id === 'key-addak') {
                         punjSpan.textContent = '◌' + key.getAttribute('data-lower');
                     } else {
@@ -400,12 +415,10 @@
             inputField.focus();
         }
 
-        // Flips between ABC and ?123
         function toggleLayout() {
             const mainKeys = document.getElementById('main-keys');
             const symKeys = document.getElementById('symbol-keys');
 
-            // Reset shift when switching layouts (just like a real phone)
             if (isShifted) {
                 toggleShift();
             }
