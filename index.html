@@ -14,6 +14,8 @@
             --text-color: #333;
             --button-bg: #007bff;
             --button-hover: #0056b3;
+            --edit-bg: #ff9800;
+            --edit-hover: #e68a00;
             --addak-font: 'Gurmukhi MN', 'Raavi', sans-serif;
         }
 
@@ -37,12 +39,10 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
+            position: relative;
         }
 
-        h2 {
-            text-align: center;
-            margin-top: 0;
-        }
+        h2 { text-align: center; margin-top: 0; }
 
         textarea {
             width: 100%;
@@ -57,34 +57,87 @@
             font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
         }
 
-        .action-buttons {
+        .top-controls {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
+            justify-content: flex-start;
+            margin-bottom: 10px;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .action-btn {
             background-color: var(--button-bg);
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 16px;
+            padding: 10px 15px;
+            font-size: 14px;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.2s;
-            flex: 1;
+            font-weight: bold;
         }
 
         .action-btn:hover { background-color: var(--button-hover); }
         .action-btn.clear-btn { background-color: #dc3545; }
         .action-btn.clear-btn:hover { background-color: #c82333; }
+        
+        .action-btn.edit-btn { background-color: var(--edit-bg); }
+        .action-btn.edit-btn:hover { background-color: var(--edit-hover); }
+        .action-btn.save-btn { background-color: #28a745; }
+        .action-btn.save-btn:hover { background-color: #218838; }
+
+        .keyboard-wrapper {
+            position: relative;
+            padding-bottom: 30px; /* Space for the + button */
+        }
 
         .keyboard {
             background-color: var(--keyboard-bg);
             padding: 10px;
             border-radius: 10px;
+            position: relative;
         }
+
+        .keyboard.edit-mode {
+            outline: 3px dashed var(--edit-bg);
+            background-color: #e2e5e9;
+        }
+
+        /* The + Password Button */
+        .auth-btn {
+            position: absolute;
+            bottom: -5px;
+            right: 10px;
+            background-color: var(--text-color);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .auth-btn:active { transform: scale(0.9); }
+
+        /* Admin Controls (Hidden by default) */
+        .admin-panel {
+            display: none;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .admin-panel .action-btn { flex: 1; min-width: 100px; }
 
         #main-keys, #symbol-keys {
             display: flex;
@@ -120,8 +173,8 @@
             color: #111;
         }
 
-        .key:hover { background-color: var(--key-hover); }
-        .key:active {
+        .key:not(.edit-mode .key):hover { background-color: var(--key-hover); }
+        .key:not(.edit-mode .key):active {
             background-color: var(--key-active);
             border-bottom-width: 1px;
             transform: translateY(2px);
@@ -143,10 +196,7 @@
             font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
         }
 
-        .symbol-key .punj {
-            margin-top: 0;
-            font-size: 22px;
-        }
+        .symbol-key .punj { margin-top: 0; font-size: 22px; }
 
         .key.control {
             background-color: #abb2bf;
@@ -154,12 +204,9 @@
             font-weight: bold;
             color: #333;
         }
-        
         .key.control:active { background-color: #9299a6; }
-        
         .key.space { flex: 6; }
         .key.toggle-btn { flex: 2; }
-
         .key.shift-active {
             background-color: #838a96;
             color: white;
@@ -167,85 +214,99 @@
             transform: translateY(2px);
         }
 
-        #key-addak .punj {
-            font-family: var(--addak-font);
-            font-size: 26px;
-            margin-top: 6px;
+        #key-addak .punj { font-family: var(--addak-font); font-size: 26px; margin-top: 6px; }
+
+        /* --- EDIT MODE SPECIFIC STYLES --- */
+        .keyboard.edit-mode .key:not(.control) {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow: visible;
+            border-bottom-width: 1px;
+            cursor: default;
         }
 
-        /* =========================================
-           MOBILE RESPONSIVENESS STYLES
-           ========================================= */
+        .keyboard.edit-mode .key:not(.control) > .eng,
+        .keyboard.edit-mode .key:not(.control) > .punj {
+            display: none; 
+        }
+
+        .edit-slot {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
+            cursor: pointer;
+            box-sizing: border-box;
+            border: 1px dashed transparent;
+        }
+
+        .edit-slot[data-slot="upper"] { background-color: #f1f3f4; border-bottom: 1px solid #ccc; border-radius: 6px 6px 0 0; color: #555; }
+        .edit-slot[data-slot="lower"] { background-color: #fff; font-weight: bold; border-radius: 0 0 6px 6px; }
+
+        .edit-slot:hover { background-color: #e0e0e0; border-color: #888; }
+        
+        .edit-slot.selected-slot {
+            background-color: #28a745 !important;
+            color: white !important;
+            border: 2px solid #1e7e34;
+            transform: scale(1.05);
+            z-index: 5;
+        }
+
+        .flip-icon {
+            display: none;
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            line-height: 22px;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .keyboard.edit-mode .flip-icon { display: block; }
+        .flip-icon:active { transform: translateY(-50%) scale(0.9); }
+
+        /* Media Queries */
         @media (max-width: 650px) {
-            /* Edge-to-edge layout */
-            body { 
-                padding: 0; 
-                background-color: #ffffff; 
-            }
-            .container { 
-                padding: 10px 0 0 0; 
-                border-radius: 0; 
-                box-shadow: none;
-            }
-            h2 { 
-                font-size: 20px; 
-                margin-bottom: 10px; 
-                padding: 0 10px; 
-            }
-            
-            textarea { 
-                width: calc(100% - 20px); /* Keep margins on the text box */
-                margin: 0 10px 15px 10px;
-                font-size: 24px; 
-                height: 180px; 
-                padding: 10px; 
-            }
-            
-            .action-buttons { 
-                padding: 0 10px; 
-                margin-bottom: 15px; 
-            }
-            .action-btn { padding: 12px; font-size: 15px; }
-            
-            /* Keyboard touches the left and right screen edges */
-            .keyboard { 
-                padding: 6px 2px; 
-                border-radius: 0; 
-                background-color: var(--keyboard-bg); 
-                width: 100%;
-                box-sizing: border-box;
-            }
-            #main-keys, #symbol-keys { gap: 6px; }
-            .key-row { gap: 3px; }
-            
-            /* Refined row offsets for the wider screen fit */
-            .row-2 { padding-left: 16px; padding-right: 16px; }
+            body { padding: 10px; }
+            .container { padding: 10px; }
+            h2 { font-size: 20px; margin-bottom: 10px; }
+            textarea { font-size: 20px; height: 90px; padding: 10px; }
+            .action-btn { padding: 8px; font-size: 13px; }
+            .keyboard { padding: 5px; }
+            #main-keys, #symbol-keys { gap: 4px; }
+            .key-row { gap: 2px; }
+            .row-2 { padding-left: 10px; padding-right: 10px; }
             .row-3 { padding-left: 0px; padding-right: 0px; }
-            
-            /* 10% larger than the previous version */
-            .key { 
-                height: 64px; 
-                border-radius: 4px; 
-                border-bottom-width: 2px; 
-            }
-            
-            .key .eng { font-size: 12px; top: 2px; left: 3px; } 
-            .key .punj { 
-                font-size: 26px; 
-                margin-top: 6px; 
-            }
-            .symbol-key .punj { font-size: 26px; }
-            .key.control { font-size: 17px; } 
-            #key-addak .punj { font-size: 28px; }
+            .key { height: 45px; border-radius: 4px; border-bottom-width: 2px; }
+            .key .eng { font-size: 9px; top: 2px; left: 3px; }
+            .key .punj { font-size: 18px; margin-top: 6px; }
+            .symbol-key .punj { font-size: 18px; }
+            .key.control { font-size: 13px; }
+            #key-addak .punj { font-size: 20px; }
+            .edit-slot { font-size: 15px; }
+            .flip-icon { width: 18px; height: 18px; line-height: 18px; font-size: 10px; right: -5px; }
         }
 
-        /* Ultra small screens (iPhone SE / older models) */
         @media (max-width: 380px) {
-            .key { height: 55px; }
-            .key .punj { font-size: 23px; }
-            .symbol-key .punj { font-size: 23px; }
+            .key { height: 40px; }
+            .key .punj { font-size: 16px; }
+            .symbol-key .punj { font-size: 16px; }
             .key .eng { display: none; } 
-            .key.control { font-size: 14px; }
+            .key.control { font-size: 11px; }
         }
     </style>
 </head>
@@ -254,145 +315,161 @@
     <div class="container">
         <h2>Gurmukhi Smart Keyboard</h2>
         
-        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus inputmode="none"></textarea>
+        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus></textarea>
         
-        <div class="action-buttons">
+        <div class="top-controls">
             <button class="action-btn" onclick="copyText()">Copy Text</button>
             <button class="action-btn clear-btn" onclick="clearText()">Clear</button>
         </div>
 
-        <div class="keyboard" id="keyboard">
-            
-            <div id="main-keys">
-                <div class="key-row">
-                    <div class="key" data-lower="ੌ" data-upper="ਔ" data-eng-lower="q" data-eng-upper="Q" onclick="handleKeyClick(this)"><span class="eng">q</span><span class="punj">ੌ</span></div>
-                    <div class="key" data-lower="ੈ" data-upper="ਐ" data-eng-lower="w" data-eng-upper="W" onclick="handleKeyClick(this)"><span class="eng">w</span><span class="punj">ੈ</span></div>
-                    <div class="key" data-lower="ਾ" data-upper="ਆ" data-eng-lower="e" data-eng-upper="E" onclick="handleKeyClick(this)"><span class="eng">e</span><span class="punj">ਾ</span></div>
-                    <div class="key" data-lower="ੀ" data-upper="ਈ" data-eng-lower="r" data-eng-upper="R" onclick="handleKeyClick(this)"><span class="eng">r</span><span class="punj">ੀ</span></div>
-                    <div class="key" data-lower="ੂ" data-upper="ਊ" data-eng-lower="t" data-eng-upper="T" onclick="handleKeyClick(this)"><span class="eng">t</span><span class="punj">ੂ</span></div>
-                    <div class="key" data-lower="ਬ" data-upper="ਭ" data-eng-lower="y" data-eng-upper="Y" onclick="handleKeyClick(this)"><span class="eng">y</span><span class="punj">ਬ</span></div>
-                    <div class="key" data-lower="ਹ" data-upper="ਙ" data-eng-lower="u" data-eng-upper="U" onclick="handleKeyClick(this)"><span class="eng">u</span><span class="punj">ਹ</span></div>
-                    <div class="key" data-lower="ਗ" data-upper="ਘ" data-eng-lower="i" data-eng-upper="I" onclick="handleKeyClick(this)"><span class="eng">i</span><span class="punj">ਗ</span></div>
-                    <div class="key" data-lower="ਦ" data-upper="ਧ" data-eng-lower="o" data-eng-upper="O" onclick="handleKeyClick(this)"><span class="eng">o</span><span class="punj">ਦ</span></div>
-                    <div class="key" data-lower="ਜ" data-upper="ਝ" data-eng-lower="p" data-eng-upper="P" onclick="handleKeyClick(this)"><span class="eng">p</span><span class="punj">ਜ</span></div>
-                    <div class="key" data-lower="ਡ" data-upper="ਢ" data-eng-lower="[" data-eng-upper="{" onclick="handleKeyClick(this)"><span class="eng">[</span><span class="punj">ਡ</span></div>
-                    <div class="key" data-lower="਼" data-upper="ਞ" data-eng-lower="]" data-eng-upper="}" onclick="handleKeyClick(this)"><span class="eng">]</span><span class="punj">਼</span></div>
-                </div>
-                
-                <div class="key-row row-2">
-                    <div class="key" data-lower="ੋ" data-upper="ਓ" data-eng-lower="a" data-eng-upper="A" onclick="handleKeyClick(this)"><span class="eng">a</span><span class="punj">ੋ</span></div>
-                    <div class="key" data-lower="ੇ" data-upper="ਏ" data-eng-lower="s" data-eng-upper="S" onclick="handleKeyClick(this)"><span class="eng">s</span><span class="punj">ੇ</span></div>
-                    <div class="key" data-lower="੍" data-upper="ਅ" data-eng-lower="d" data-eng-upper="D" onclick="handleKeyClick(this)"><span class="eng">d</span><span class="punj">੍</span></div>
-                    <div class="key" data-lower="ਿ" data-upper="ਇ" data-eng-lower="f" data-eng-upper="F" onclick="handleKeyClick(this)"><span class="eng">f</span><span class="punj">ਿ</span></div>
-                    <div class="key" data-lower="ੁ" data-upper="ਉ" data-eng-lower="g" data-eng-upper="G" onclick="handleKeyClick(this)"><span class="eng">g</span><span class="punj">ੁ</span></div>
-                    <div class="key" data-lower="ਪ" data-upper="ਫ" data-eng-lower="h" data-eng-upper="H" onclick="handleKeyClick(this)"><span class="eng">h</span><span class="punj">ਪ</span></div>
-                    <div class="key" data-lower="ਰ" data-upper="ੜ" data-eng-lower="j" data-eng-upper="J" onclick="handleKeyClick(this)"><span class="eng">j</span><span class="punj">ਰ</span></div>
-                    <div class="key" data-lower="ਕ" data-upper="ਖ" data-eng-lower="k" data-eng-upper="K" onclick="handleKeyClick(this)"><span class="eng">k</span><span class="punj">ਕ</span></div>
-                    <div class="key" data-lower="ਤ" data-upper="ਥ" data-eng-lower="l" data-eng-upper="L" onclick="handleKeyClick(this)"><span class="eng">l</span><span class="punj">ਤ</span></div>
-                    <div class="key" data-lower="ਚ" data-upper="ਛ" data-eng-lower=";" data-eng-upper=":" onclick="handleKeyClick(this)"><span class="eng">;</span><span class="punj">ਚ</span></div>
-                    <div class="key" data-lower="ਟ" data-upper="ਠ" data-eng-lower="'" data-eng-upper='"' onclick="handleKeyClick(this)"><span class="eng">'</span><span class="punj">ਟ</span></div>
+        <div class="keyboard-wrapper">
+            <div class="keyboard" id="keyboard">
+                <div id="main-keys">
+                    <div class="key-row">
+                        <div class="key" data-lower="ੌ" data-upper="ਔ" data-eng-lower="q" data-eng-upper="Q" onclick="handleKeyClick(this)"><span class="eng">q</span><span class="punj">ੌ</span></div>
+                        <div class="key" data-lower="ੈ" data-upper="ਐ" data-eng-lower="w" data-eng-upper="W" onclick="handleKeyClick(this)"><span class="eng">w</span><span class="punj">ੈ</span></div>
+                        <div class="key" data-lower="ਾ" data-upper="ਆ" data-eng-lower="e" data-eng-upper="E" onclick="handleKeyClick(this)"><span class="eng">e</span><span class="punj">ਾ</span></div>
+                        <div class="key" data-lower="ੀ" data-upper="ਈ" data-eng-lower="r" data-eng-upper="R" onclick="handleKeyClick(this)"><span class="eng">r</span><span class="punj">ੀ</span></div>
+                        <div class="key" data-lower="ੂ" data-upper="ਊ" data-eng-lower="t" data-eng-upper="T" onclick="handleKeyClick(this)"><span class="eng">t</span><span class="punj">ੂ</span></div>
+                        <div class="key" data-lower="ਬ" data-upper="ਭ" data-eng-lower="y" data-eng-upper="Y" onclick="handleKeyClick(this)"><span class="eng">y</span><span class="punj">ਬ</span></div>
+                        <div class="key" data-lower="ਹ" data-upper="ਙ" data-eng-lower="u" data-eng-upper="U" onclick="handleKeyClick(this)"><span class="eng">u</span><span class="punj">ਹ</span></div>
+                        <div class="key" data-lower="ਗ" data-upper="ਘ" data-eng-lower="i" data-eng-upper="I" onclick="handleKeyClick(this)"><span class="eng">i</span><span class="punj">ਗ</span></div>
+                        <div class="key" data-lower="ਦ" data-upper="ਧ" data-eng-lower="o" data-eng-upper="O" onclick="handleKeyClick(this)"><span class="eng">o</span><span class="punj">ਦ</span></div>
+                        <div class="key" data-lower="ਜ" data-upper="ਝ" data-eng-lower="p" data-eng-upper="P" onclick="handleKeyClick(this)"><span class="eng">p</span><span class="punj">ਜ</span></div>
+                        <div class="key" data-lower="ਡ" data-upper="ਢ" data-eng-lower="[" data-eng-upper="{" onclick="handleKeyClick(this)"><span class="eng">[</span><span class="punj">ਡ</span></div>
+                        <div class="key" data-lower="਼" data-upper="ਞ" data-eng-lower="]" data-eng-upper="}" onclick="handleKeyClick(this)"><span class="eng">]</span><span class="punj">਼</span></div>
+                    </div>
+                    
+                    <div class="key-row row-2">
+                        <div class="key" data-lower="ੋ" data-upper="ਓ" data-eng-lower="a" data-eng-upper="A" onclick="handleKeyClick(this)"><span class="eng">a</span><span class="punj">ੋ</span></div>
+                        <div class="key" data-lower="ੇ" data-upper="ਏ" data-eng-lower="s" data-eng-upper="S" onclick="handleKeyClick(this)"><span class="eng">s</span><span class="punj">ੇ</span></div>
+                        <div class="key" data-lower="੍" data-upper="ਅ" data-eng-lower="d" data-eng-upper="D" onclick="handleKeyClick(this)"><span class="eng">d</span><span class="punj">੍</span></div>
+                        <div class="key" data-lower="ਿ" data-upper="ਇ" data-eng-lower="f" data-eng-upper="F" onclick="handleKeyClick(this)"><span class="eng">f</span><span class="punj">ਿ</span></div>
+                        <div class="key" data-lower="ੁ" data-upper="ਉ" data-eng-lower="g" data-eng-upper="G" onclick="handleKeyClick(this)"><span class="eng">g</span><span class="punj">ੁ</span></div>
+                        <div class="key" data-lower="ਪ" data-upper="ਫ" data-eng-lower="h" data-eng-upper="H" onclick="handleKeyClick(this)"><span class="eng">h</span><span class="punj">ਪ</span></div>
+                        <div class="key" data-lower="ਰ" data-upper="ੜ" data-eng-lower="j" data-eng-upper="J" onclick="handleKeyClick(this)"><span class="eng">j</span><span class="punj">ਰ</span></div>
+                        <div class="key" data-lower="ਕ" data-upper="ਖ" data-eng-lower="k" data-eng-upper="K" onclick="handleKeyClick(this)"><span class="eng">k</span><span class="punj">ਕ</span></div>
+                        <div class="key" data-lower="ਤ" data-upper="ਥ" data-eng-lower="l" data-eng-upper="L" onclick="handleKeyClick(this)"><span class="eng">l</span><span class="punj">ਤ</span></div>
+                        <div class="key" data-lower="ਚ" data-upper="ਛ" data-eng-lower=";" data-eng-upper=":" onclick="handleKeyClick(this)"><span class="eng">;</span><span class="punj">ਚ</span></div>
+                        <div class="key" data-lower="ਟ" data-upper="ਠ" data-eng-lower="'" data-eng-upper='"' onclick="handleKeyClick(this)"><span class="eng">'</span><span class="punj">ਟ</span></div>
+                    </div>
+
+                    <div class="key-row row-3">
+                        <div class="key control shift-btn" style="flex: 1.5;" onclick="toggleShift()">Shift</div>
+                        <div class="key" id="key-addak" data-lower="ੱ" data-upper="ੑ" data-eng-lower="z" data-eng-upper="Z" onclick="handleKeyClick(this)"><span class="eng">z</span><span class="punj">◌ੱ</span></div>
+                        <div class="key" data-lower="ੰ" data-upper="ਂ" data-eng-lower="x" data-eng-upper="X" onclick="handleKeyClick(this)"><span class="eng">x</span><span class="punj">ੰ</span></div>
+                        <div class="key" data-lower="ਮ" data-upper="ਣ" data-eng-lower="c" data-eng-upper="C" onclick="handleKeyClick(this)"><span class="eng">c</span><span class="punj">ਮ</span></div>
+                        <div class="key" data-lower="ਨ" data-upper="ੳ" data-eng-lower="v" data-eng-upper="V" onclick="handleKeyClick(this)"><span class="eng">v</span><span class="punj">ਨ</span></div>
+                        <div class="key" data-lower="ਵ" data-upper="ੲ" data-eng-lower="b" data-eng-upper="B" onclick="handleKeyClick(this)"><span class="eng">b</span><span class="punj">ਵ</span></div>
+                        <div class="key" data-lower="ਲ" data-upper="ਲ਼" data-eng-lower="n" data-eng-upper="N" onclick="handleKeyClick(this)"><span class="eng">n</span><span class="punj">ਲ</span></div>
+                        <div class="key" data-lower="ਸ" data-upper="ਸ਼" data-eng-lower="m" data-eng-upper="M" onclick="handleKeyClick(this)"><span class="eng">m</span><span class="punj">ਸ</span></div>
+                        <div class="key" data-lower="," data-upper="।" data-eng-lower="," data-eng-upper="<" onclick="handleKeyClick(this)"><span class="eng">,</span><span class="punj">,</span></div>
+                        <div class="key" data-lower="." data-upper="॥" data-eng-lower="." data-eng-upper=">" onclick="handleKeyClick(this)"><span class="eng">.</span><span class="punj">.</span></div>
+                        <div class="key" data-lower="ਯ" data-upper="?" data-eng-lower="/" data-eng-upper="?" onclick="handleKeyClick(this)"><span class="eng">/</span><span class="punj">ਯ</span></div>
+                        <div class="key control" style="flex: 1.5;" onclick="backspace()">⌫ Back</div>
+                    </div>
+
+                    <div class="key-row">
+                        <div class="key control toggle-btn" onclick="toggleLayout()">?123</div>
+                        <div class="key control space" onclick="insert(' ')">Space</div>
+                    </div>
                 </div>
 
-                <div class="key-row row-3">
-                    <div class="key control shift-btn" style="flex: 1.5;" onclick="toggleShift()">Shift</div>
-                    <div class="key" id="key-addak" data-lower="ੱ" data-upper="ੑ" data-eng-lower="z" data-eng-upper="Z" onclick="handleKeyClick(this)"><span class="eng">z</span><span class="punj">◌ੱ</span></div>
-                    <div class="key" data-lower="ੰ" data-upper="ਂ" data-eng-lower="x" data-eng-upper="X" onclick="handleKeyClick(this)"><span class="eng">x</span><span class="punj">ੰ</span></div>
-                    <div class="key" data-lower="ਮ" data-upper="ਣ" data-eng-lower="c" data-eng-upper="C" onclick="handleKeyClick(this)"><span class="eng">c</span><span class="punj">ਮ</span></div>
-                    <div class="key" data-lower="ਨ" data-upper="ੳ" data-eng-lower="v" data-eng-upper="V" onclick="handleKeyClick(this)"><span class="eng">v</span><span class="punj">ਨ</span></div>
-                    <div class="key" data-lower="ਵ" data-upper="ੲ" data-eng-lower="b" data-eng-upper="B" onclick="handleKeyClick(this)"><span class="eng">b</span><span class="punj">ਵ</span></div>
-                    <div class="key" data-lower="ਲ" data-upper="ਲ਼" data-eng-lower="n" data-eng-upper="N" onclick="handleKeyClick(this)"><span class="eng">n</span><span class="punj">ਲ</span></div>
-                    <div class="key" data-lower="ਸ" data-upper="ਸ਼" data-eng-lower="m" data-eng-upper="M" onclick="handleKeyClick(this)"><span class="eng">m</span><span class="punj">ਸ</span></div>
-                    <div class="key" data-lower="," data-upper="।" data-eng-lower="," data-eng-upper="<" onclick="handleKeyClick(this)"><span class="eng">,</span><span class="punj">,</span></div>
-                    <div class="key" data-lower="." data-upper="॥" data-eng-lower="." data-eng-upper=">" onclick="handleKeyClick(this)"><span class="eng">.</span><span class="punj">.</span></div>
-                    <div class="key" data-lower="ਯ" data-upper="?" data-eng-lower="/" data-eng-upper="?" onclick="handleKeyClick(this)"><span class="eng">/</span><span class="punj">ਯ</span></div>
-                    <div class="key control" style="flex: 1.5;" onclick="backspace()">⌫ Back</div>
-                </div>
+                <div id="symbol-keys" style="display: none;">
+                    <div class="key-row">
+                        <div class="key symbol-key" data-lower="1" data-upper="੧" onclick="handleKeyClick(this)"><span class="punj">1</span></div>
+                        <div class="key symbol-key" data-lower="2" data-upper="੨" onclick="handleKeyClick(this)"><span class="punj">2</span></div>
+                        <div class="key symbol-key" data-lower="3" data-upper="੩" onclick="handleKeyClick(this)"><span class="punj">3</span></div>
+                        <div class="key symbol-key" data-lower="4" data-upper="੪" onclick="handleKeyClick(this)"><span class="punj">4</span></div>
+                        <div class="key symbol-key" data-lower="5" data-upper="੫" onclick="handleKeyClick(this)"><span class="punj">5</span></div>
+                        <div class="key symbol-key" data-lower="6" data-upper="੬" onclick="handleKeyClick(this)"><span class="punj">6</span></div>
+                        <div class="key symbol-key" data-lower="7" data-upper="੭" onclick="handleKeyClick(this)"><span class="punj">7</span></div>
+                        <div class="key symbol-key" data-lower="8" data-upper="੮" onclick="handleKeyClick(this)"><span class="punj">8</span></div>
+                        <div class="key symbol-key" data-lower="9" data-upper="੯" onclick="handleKeyClick(this)"><span class="punj">9</span></div>
+                        <div class="key symbol-key" data-lower="0" data-upper="੦" onclick="handleKeyClick(this)"><span class="punj">0</span></div>
+                    </div>
+                    
+                    <div class="key-row row-2">
+                        <div class="key symbol-key" data-lower="@" data-upper="~" onclick="handleKeyClick(this)"><span class="punj">@</span></div>
+                        <div class="key symbol-key" data-lower="#" data-upper="`" onclick="handleKeyClick(this)"><span class="punj">#</span></div>
+                        <div class="key symbol-key" data-lower="$" data-upper="€" onclick="handleKeyClick(this)"><span class="punj">$</span></div>
+                        <div class="key symbol-key" data-lower="%" data-upper="£" onclick="handleKeyClick(this)"><span class="punj">%</span></div>
+                        <div class="key symbol-key" data-lower="&" data-upper="¢" onclick="handleKeyClick(this)"><span class="punj">&</span></div>
+                        <div class="key symbol-key" data-lower="-" data-upper="_" onclick="handleKeyClick(this)"><span class="punj">-</span></div>
+                        <div class="key symbol-key" data-lower="+" data-upper="=" onclick="handleKeyClick(this)"><span class="punj">+</span></div>
+                        <div class="key symbol-key" data-lower="(" data-upper="{" onclick="handleKeyClick(this)"><span class="punj">(</span></div>
+                        <div class="key symbol-key" data-lower=")" data-upper="}" onclick="handleKeyClick(this)"><span class="punj">)</span></div>
+                        <div class="key symbol-key" data-lower="/" data-upper="\" onclick="handleKeyClick(this)"><span class="punj">/</span></div>
+                    </div>
 
-                <div class="key-row">
-                    <div class="key control toggle-btn" onclick="toggleLayout()">?123</div>
-                    <div class="key control space" onclick="insert(' ')">Space</div>
+                    <div class="key-row row-3">
+                        <div class="key control shift-btn" style="flex: 1.5;" onclick="toggleShift()">Shift</div>
+                        <div class="key symbol-key" data-lower="ੴ" data-upper="☬" onclick="handleKeyClick(this)"><span class="punj" style="font-size: 26px;">ੴ</span></div>
+                        <div class="key symbol-key" data-lower="*" data-upper="^" onclick="handleKeyClick(this)"><span class="punj">*</span></div>
+                        <div class="key symbol-key" data-lower="&quot;" data-upper="|" onclick="handleKeyClick(this)"><span class="punj">"</span></div>
+                        <div class="key symbol-key" data-lower="'" data-upper="°" onclick="handleKeyClick(this)"><span class="punj">'</span></div>
+                        <div class="key symbol-key" data-lower=":" data-upper=";" onclick="handleKeyClick(this)"><span class="punj">:</span></div>
+                        <div class="key symbol-key" data-lower="!" data-upper="¡" onclick="handleKeyClick(this)"><span class="punj">!</span></div>
+                        <div class="key symbol-key" data-lower="?" data-upper="¿" onclick="handleKeyClick(this)"><span class="punj">?</span></div>
+                        <div class="key symbol-key" data-lower="<" data-upper="[" onclick="handleKeyClick(this)"><span class="punj"><</span></div>
+                        <div class="key symbol-key" data-lower=">" data-upper="]" onclick="handleKeyClick(this)"><span class="punj">></span></div>
+                        <div class="key control" style="flex: 1.5;" onclick="backspace()">⌫ Back</div>
+                    </div>
+
+                    <div class="key-row">
+                        <div class="key control toggle-btn" onclick="toggleLayout()">ABC</div>
+                        <div class="key control space" onclick="insert(' ')">Space</div>
+                    </div>
                 </div>
             </div>
 
-            <div id="symbol-keys" style="display: none;">
-                <div class="key-row">
-                    <div class="key symbol-key" data-lower="1" data-upper="੧" onclick="handleKeyClick(this)"><span class="punj">1</span></div>
-                    <div class="key symbol-key" data-lower="2" data-upper="੨" onclick="handleKeyClick(this)"><span class="punj">2</span></div>
-                    <div class="key symbol-key" data-lower="3" data-upper="੩" onclick="handleKeyClick(this)"><span class="punj">3</span></div>
-                    <div class="key symbol-key" data-lower="4" data-upper="੪" onclick="handleKeyClick(this)"><span class="punj">4</span></div>
-                    <div class="key symbol-key" data-lower="5" data-upper="੫" onclick="handleKeyClick(this)"><span class="punj">5</span></div>
-                    <div class="key symbol-key" data-lower="6" data-upper="੬" onclick="handleKeyClick(this)"><span class="punj">6</span></div>
-                    <div class="key symbol-key" data-lower="7" data-upper="੭" onclick="handleKeyClick(this)"><span class="punj">7</span></div>
-                    <div class="key symbol-key" data-lower="8" data-upper="੮" onclick="handleKeyClick(this)"><span class="punj">8</span></div>
-                    <div class="key symbol-key" data-lower="9" data-upper="੯" onclick="handleKeyClick(this)"><span class="punj">9</span></div>
-                    <div class="key symbol-key" data-lower="0" data-upper="੦" onclick="handleKeyClick(this)"><span class="punj">0</span></div>
-                </div>
-                
-                <div class="key-row row-2">
-                    <div class="key symbol-key" data-lower="@" data-upper="~" onclick="handleKeyClick(this)"><span class="punj">@</span></div>
-                    <div class="key symbol-key" data-lower="#" data-upper="`" onclick="handleKeyClick(this)"><span class="punj">#</span></div>
-                    <div class="key symbol-key" data-lower="$" data-upper="€" onclick="handleKeyClick(this)"><span class="punj">$</span></div>
-                    <div class="key symbol-key" data-lower="%" data-upper="£" onclick="handleKeyClick(this)"><span class="punj">%</span></div>
-                    <div class="key symbol-key" data-lower="&" data-upper="¢" onclick="handleKeyClick(this)"><span class="punj">&</span></div>
-                    <div class="key symbol-key" data-lower="-" data-upper="_" onclick="handleKeyClick(this)"><span class="punj">-</span></div>
-                    <div class="key symbol-key" data-lower="+" data-upper="=" onclick="handleKeyClick(this)"><span class="punj">+</span></div>
-                    <div class="key symbol-key" data-lower="(" data-upper="{" onclick="handleKeyClick(this)"><span class="punj">(</span></div>
-                    <div class="key symbol-key" data-lower=")" data-upper="}" onclick="handleKeyClick(this)"><span class="punj">)</span></div>
-                    <div class="key symbol-key" data-lower="/" data-upper="\" onclick="handleKeyClick(this)"><span class="punj">/</span></div>
-                </div>
+            <button id="authBtn" class="auth-btn" onclick="askPassword()">+</button>
+        </div>
 
-                <div class="key-row row-3">
-                    <div class="key control shift-btn" style="flex: 1.5;" onclick="toggleShift()">Shift</div>
-                    <div class="key symbol-key" data-lower="ੴ" data-upper="☬" onclick="handleKeyClick(this)"><span class="punj" style="font-size: 26px;">ੴ</span></div>
-                    <div class="key symbol-key" data-lower="*" data-upper="^" onclick="handleKeyClick(this)"><span class="punj">*</span></div>
-                    <div class="key symbol-key" data-lower="&quot;" data-upper="|" onclick="handleKeyClick(this)"><span class="punj">"</span></div>
-                    <div class="key symbol-key" data-lower="'" data-upper="°" onclick="handleKeyClick(this)"><span class="punj">'</span></div>
-                    <div class="key symbol-key" data-lower=":" data-upper=";" onclick="handleKeyClick(this)"><span class="punj">:</span></div>
-                    <div class="key symbol-key" data-lower="!" data-upper="¡" onclick="handleKeyClick(this)"><span class="punj">!</span></div>
-                    <div class="key symbol-key" data-lower="?" data-upper="¿" onclick="handleKeyClick(this)"><span class="punj">?</span></div>
-                    <div class="key symbol-key" data-lower="<" data-upper="[" onclick="handleKeyClick(this)"><span class="punj"><</span></div>
-                    <div class="key symbol-key" data-lower=">" data-upper="]" onclick="handleKeyClick(this)"><span class="punj">></span></div>
-                    <div class="key control" style="flex: 1.5;" onclick="backspace()">⌫ Back</div>
-                </div>
-
-                <div class="key-row">
-                    <div class="key control toggle-btn" onclick="toggleLayout()">ABC</div>
-                    <div class="key control space" onclick="insert(' ')">Space</div>
-                </div>
-            </div>
-
+        <div id="adminPanel" class="admin-panel">
+            <button id="editModeBtn" class="action-btn edit-btn" onclick="toggleEditMode()">✏️ Edit Layout</button>
+            <button class="action-btn save-btn" onclick="saveLayout(true)">💾 Save Permanently</button>
+            <button class="action-btn clear-btn" onclick="resetLayout()">🔄 Reset to Default</button>
         </div>
     </div>
 
     <script>
         const inputField = document.getElementById('punjabiInput');
         let isShifted = false;
+        let isEditMode = false;
+        let selectedSlot = null; 
 
+        // 1. Setup Keys on Load
+        document.querySelectorAll('.key').forEach((key, index) => {
+            if (!key.id) key.id = 'vkey-' + index;
+
+            if (!key.classList.contains('control')) {
+                const flipBtn = document.createElement('div');
+                flipBtn.className = 'flip-icon';
+                flipBtn.innerHTML = '🔄';
+                flipBtn.onclick = (e) => handleFlipClick(e, key);
+                key.appendChild(flipBtn);
+            }
+        });
+
+        // --- Core Keyboard Logic ---
         const keyMap = {
             'q': 'ੌ', 'w': 'ੈ', 'e': 'ਾ', 'r': 'ੀ', 't': 'ੂ', 'y': 'ਬ', 'u': 'ਹ', 'i': 'ਗ', 'o': 'ਦ', 'p': 'ਜ', '[': 'ਡ', ']': '਼',
             'Q': 'ਔ', 'W': 'ਐ', 'E': 'ਆ', 'R': 'ਈ', 'T': 'ਊ', 'Y': 'ਭ', 'U': 'ਙ', 'I': 'ਘ', 'O': 'ਧ', 'P': 'ਝ', '{': 'ਢ', '}': 'ਞ',
             'a': 'ੋ', 's': 'ੇ', 'd': '੍', 'f': 'ਿ', 'g': 'ੁ', 'h': 'ਪ', 'j': 'ਰ', 'k': 'ਕ', 'l': 'ਤ', ';': 'ਚ', "'": 'ਟ',
             'A': 'ਓ', 'S': 'ਏ', 'D': 'ਅ', 'F': 'ਇ', 'G': 'ਉ', 'H': 'ਫ', 'J': 'ੜ', 'K': 'ਖ', 'L': 'ਥ', ':': 'ਛ', '"': 'ਠ',
-            'z': 'ੱ', 
-            'x': 'ੰ', 'c': 'ਮ', 'v': 'ਨ', 'b': 'ਵ', 'n': 'ਲ', 'm': 'ਸ', ',': ',', '.': '.', '/': 'ਯ',
+            'z': 'ੱ', 'x': 'ੰ', 'c': 'ਮ', 'v': 'ਨ', 'b': 'ਵ', 'n': 'ਲ', 'm': 'ਸ', ',': ',', '.': '.', '/': 'ਯ',
             'Z': 'ੑ', 'X': 'ਂ', 'C': 'ਣ', 'V': 'ੳ', 'B': 'ੲ', 'N': 'ਲ਼', 'M': 'ਸ਼', '<': '।', '>': '॥', '?': '?'
         };
 
         inputField.addEventListener('keydown', function(e) {
             if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-                if (keyMap[e.key]) {
-                    e.preventDefault(); 
-                    insert(keyMap[e.key]); 
-                }
+                if (keyMap[e.key]) { e.preventDefault(); insert(keyMap[e.key]); }
             }
         });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Shift' && !isShifted) toggleShift();
-        });
-        document.addEventListener('keyup', function(e) {
-            if (e.key === 'Shift' && isShifted) toggleShift();
-        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Shift' && !isShifted) toggleShift(); });
+        document.addEventListener('keyup', function(e) { if (e.key === 'Shift' && isShifted) toggleShift(); });
 
         function insert(char) {
             const start = inputField.selectionStart;
@@ -404,53 +481,28 @@
         }
 
         function handleKeyClick(element) {
+            if (isEditMode) return; 
             const charToInsert = isShifted ? element.getAttribute('data-upper') : element.getAttribute('data-lower');
-            insert(charToInsert);
-            if (isShifted) {
-                toggleShift();
-            }
+            if(charToInsert) insert(charToInsert);
+            if (isShifted) toggleShift();
         }
 
         function toggleShift() {
+            if (isEditMode) return;
             isShifted = !isShifted;
-            const keys = document.querySelectorAll('.key[data-lower]'); 
-            const shiftBtns = document.querySelectorAll('.shift-btn');
-            
-            keys.forEach(key => {
-                const engSpan = key.querySelector('.eng');
-                const punjSpan = key.querySelector('.punj');
-                
-                if (isShifted) {
-                    if(engSpan) engSpan.textContent = key.getAttribute('data-eng-upper');
-                    punjSpan.textContent = key.getAttribute('data-upper');
-                } else {
-                    if(engSpan) engSpan.textContent = key.getAttribute('data-eng-lower');
-                    
-                    if (key.id === 'key-addak') {
-                        punjSpan.textContent = '◌' + key.getAttribute('data-lower');
-                    } else {
-                        punjSpan.textContent = key.getAttribute('data-lower');
-                    }
-                }
-            });
-
-            shiftBtns.forEach(btn => {
-                if (isShifted) {
-                    btn.classList.add('shift-active');
-                } else {
-                    btn.classList.remove('shift-active');
-                }
+            refreshAllKeys();
+            document.querySelectorAll('.shift-btn').forEach(btn => {
+                if (isShifted) btn.classList.add('shift-active');
+                else btn.classList.remove('shift-active');
             });
             inputField.focus();
         }
 
         function toggleLayout() {
+            if (isEditMode) return;
             const mainKeys = document.getElementById('main-keys');
             const symKeys = document.getElementById('symbol-keys');
-
-            if (isShifted) {
-                toggleShift();
-            }
+            if (isShifted) toggleShift();
 
             if (mainKeys.style.display === 'none') {
                 mainKeys.style.display = 'flex';
@@ -463,6 +515,7 @@
         }
 
         function backspace() {
+            if (isEditMode) return;
             const start = inputField.selectionStart;
             const end = inputField.selectionEnd;
             const text = inputField.value;
@@ -480,23 +533,186 @@
         function copyText() {
             inputField.select();
             inputField.setSelectionRange(0, 99999);
-            if (inputField.value.trim() === "") {
-                alert("Nothing to copy!");
-                return;
-            }
-            navigator.clipboard.writeText(inputField.value).then(() => {
-                alert("Text copied to clipboard!");
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+            if (inputField.value.trim() === "") return alert("ਕਾਪੀ ਕਰਨ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ! (Nothing to copy!)");
+            navigator.clipboard.writeText(inputField.value).then(() => alert("ਟੈਕਸਟ ਕਾਪੀ ਹੋ ਗਿਆ! (Text copied!)"));
         }
 
         function clearText() {
-            if (confirm("Are you sure you want to clear the text?")) {
+            if (confirm("ਕੀ ਤੁਸੀਂ ਸਾਰਾ ਟੈਕਸਟ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ? (Clear all text?)")) {
                 inputField.value = "";
                 inputField.focus();
             }
         }
+
+        // --- Password Logic ---
+        function askPassword() {
+            let pwd = prompt("ਕਿਰਪਾ ਕਰਕੇ ਪਾਸਵਰਡ ਭਰੋ (Enter Password):");
+            if (pwd === "2005") {
+                document.getElementById('adminPanel').style.display = 'flex';
+                document.getElementById('authBtn').style.display = 'none'; // Hide the + button
+            } else if (pwd !== null) {
+                alert("ਗਲਤ ਪਾਸਵਰਡ! (Wrong Password!)");
+            }
+        }
+
+        // --- Edit Mode & Swapping ---
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const kb = document.getElementById('keyboard');
+            const editBtn = document.getElementById('editModeBtn');
+
+            if (isEditMode) {
+                kb.classList.add('edit-mode');
+                editBtn.innerHTML = "✅ Stop Editing";
+                editBtn.style.backgroundColor = "#17a2b8"; // Change color to indicate active state
+                
+                document.querySelectorAll('.key:not(.control)').forEach(key => {
+                    const upperChar = key.getAttribute('data-upper') || '';
+                    const lowerChar = key.getAttribute('data-lower') || '';
+
+                    const upperSlot = document.createElement('div');
+                    upperSlot.className = 'edit-slot';
+                    upperSlot.dataset.slot = 'upper';
+                    upperSlot.textContent = upperChar;
+                    upperSlot.onclick = (e) => handleSlotClick(e, upperSlot);
+
+                    const lowerSlot = document.createElement('div');
+                    lowerSlot.className = 'edit-slot';
+                    lowerSlot.dataset.slot = 'lower';
+                    lowerSlot.textContent = lowerChar;
+                    lowerSlot.onclick = (e) => handleSlotClick(e, lowerSlot);
+
+                    key.insertBefore(upperSlot, key.firstChild);
+                    key.appendChild(lowerSlot);
+                });
+            } else {
+                kb.classList.remove('edit-mode');
+                editBtn.innerHTML = "✏️ Edit Layout";
+                editBtn.style.backgroundColor = "var(--edit-bg)";
+                
+                if (selectedSlot) {
+                    selectedSlot.classList.remove('selected-slot');
+                    selectedSlot = null;
+                }
+
+                document.querySelectorAll('.key:not(.control)').forEach(key => {
+                    key.querySelectorAll('.edit-slot').forEach(slot => slot.remove());
+                });
+                
+                refreshAllKeys();
+            }
+        }
+
+        function handleSlotClick(e, clickedSlot) {
+            e.stopPropagation();
+            if (!selectedSlot) {
+                selectedSlot = clickedSlot;
+                selectedSlot.classList.add('selected-slot');
+            } else if (selectedSlot === clickedSlot) {
+                selectedSlot.classList.remove('selected-slot');
+                selectedSlot = null;
+            } else {
+                const sourceKey = selectedSlot.closest('.key');
+                const targetKey = clickedSlot.closest('.key');
+                
+                const sourceAttr = selectedSlot.dataset.slot === 'upper' ? 'data-upper' : 'data-lower';
+                const targetAttr = clickedSlot.dataset.slot === 'upper' ? 'data-upper' : 'data-lower';
+
+                const sourceChar = sourceKey.getAttribute(sourceAttr);
+                const targetChar = targetKey.getAttribute(targetAttr);
+
+                sourceKey.setAttribute(sourceAttr, targetChar);
+                targetKey.setAttribute(targetAttr, sourceChar);
+
+                selectedSlot.textContent = targetChar;
+                clickedSlot.textContent = sourceChar;
+
+                selectedSlot.classList.remove('selected-slot');
+                selectedSlot = null;
+            }
+        }
+
+        function handleFlipClick(e, key) {
+            e.stopPropagation();
+            const lower = key.getAttribute('data-lower');
+            const upper = key.getAttribute('data-upper');
+            
+            key.setAttribute('data-lower', upper);
+            key.setAttribute('data-upper', lower);
+
+            if (isEditMode) {
+                const upperSlot = key.querySelector('.edit-slot[data-slot="upper"]');
+                const lowerSlot = key.querySelector('.edit-slot[data-slot="lower"]');
+                if (upperSlot && lowerSlot) {
+                    upperSlot.textContent = lower;
+                    lowerSlot.textContent = upper;
+                }
+            }
+        }
+
+        function refreshAllKeys() {
+            document.querySelectorAll('.key:not(.control)').forEach(key => {
+                const engSpan = key.querySelector('.eng');
+                const punjSpan = key.querySelector('.punj');
+                
+                if (isShifted) {
+                    if(engSpan && key.getAttribute('data-eng-upper')) engSpan.textContent = key.getAttribute('data-eng-upper');
+                    punjSpan.textContent = key.getAttribute('data-upper');
+                } else {
+                    if(engSpan && key.getAttribute('data-eng-lower')) engSpan.textContent = key.getAttribute('data-eng-lower');
+                    
+                    if (key.id === 'key-addak') {
+                        punjSpan.textContent = '◌' + key.getAttribute('data-lower');
+                    } else {
+                        punjSpan.textContent = key.getAttribute('data-lower');
+                    }
+                }
+            });
+        }
+
+        // --- Persistence (Saving and Loading) ---
+        function saveLayout(showAlert = false) {
+            const layoutData = {};
+            document.querySelectorAll('.key:not(.control)').forEach(key => {
+                layoutData[key.id] = {
+                    lower: key.getAttribute('data-lower'),
+                    upper: key.getAttribute('data-upper')
+                };
+            });
+            localStorage.setItem('gurmukhiCharLayout', JSON.stringify(layoutData));
+            
+            if(showAlert) {
+                alert("ਕੀਬੋਰਡ ਲੇਆਉਟ ਪੱਕੇ ਤੌਰ 'ਤੇ ਸੇਵ ਹੋ ਗਿਆ ਹੈ! (Layout Saved Permanently!)");
+            }
+        }
+
+        function loadLayout() {
+            const savedData = localStorage.getItem('gurmukhiCharLayout');
+            if (!savedData) return; 
+
+            try {
+                const layoutData = JSON.parse(savedData);
+                for (const keyId in layoutData) {
+                    const key = document.getElementById(keyId);
+                    if (key) {
+                        key.setAttribute('data-lower', layoutData[keyId].lower);
+                        key.setAttribute('data-upper', layoutData[keyId].upper);
+                    }
+                }
+                refreshAllKeys();
+            } catch(e) {
+                console.error("Failed to load layout", e);
+            }
+        }
+
+        function resetLayout() {
+            if(confirm("ਕੀ ਤੁਸੀਂ ਸਾਰੇ ਅੱਖਰਾਂ ਨੂੰ ਪੁਰਾਣੀ ਸੈਟਿੰਗ 'ਤੇ ਰੀਸੈੱਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ? (Reset to default?)")) {
+                localStorage.removeItem('gurmukhiCharLayout');
+                location.reload(); 
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadLayout);
     </script>
 </body>
 </html>
