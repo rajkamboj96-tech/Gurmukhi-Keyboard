@@ -44,6 +44,7 @@
 
         h2 { text-align: center; margin-top: 0; }
 
+        /* Added inputmode="none" in HTML below to stop native mobile keyboard */
         textarea {
             width: 100%;
             height: 120px;
@@ -88,7 +89,7 @@
 
         .keyboard-wrapper {
             position: relative;
-            padding-bottom: 30px; /* Space for the + button */
+            padding-bottom: 30px; 
         }
 
         .keyboard {
@@ -96,6 +97,7 @@
             padding: 10px;
             border-radius: 10px;
             position: relative;
+            transition: all 0.3s ease;
         }
 
         .keyboard.edit-mode {
@@ -103,7 +105,6 @@
             background-color: #e2e5e9;
         }
 
-        /* The + Password Button */
         .auth-btn {
             position: absolute;
             bottom: -5px;
@@ -125,7 +126,6 @@
         }
         .auth-btn:active { transform: scale(0.9); }
 
-        /* Admin Controls (Hidden by default) */
         .admin-panel {
             display: none;
             justify-content: space-between;
@@ -143,6 +143,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            transition: gap 0.3s ease;
         }
 
         .key-row {
@@ -165,7 +166,7 @@
             position: relative;
             user-select: none;
             -webkit-user-select: none; 
-            transition: all 0.1s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -224,6 +225,12 @@
             overflow: visible;
             border-bottom-width: 1px;
             cursor: default;
+            height: 80px; /* INCREASED HEIGHT DURING EDIT ON DESKTOP */
+        }
+
+        .keyboard.edit-mode #main-keys, 
+        .keyboard.edit-mode #symbol-keys {
+            gap: 12px; /* INCREASED GAP BETWEEN ROWS DURING EDIT */
         }
 
         .keyboard.edit-mode .key:not(.control) > .eng,
@@ -237,7 +244,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px; /* Larger font for easy tapping */
             font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
             cursor: pointer;
             box-sizing: border-box;
@@ -279,32 +286,53 @@
         .keyboard.edit-mode .flip-icon { display: block; }
         .flip-icon:active { transform: translateY(-50%) scale(0.9); }
 
-        /* Media Queries */
+        /* Media Queries - Mobile Adjustments */
         @media (max-width: 650px) {
-            body { padding: 10px; }
-            .container { padding: 10px; }
+            body { 
+                padding: 10px 0; 
+            }
+            .container { 
+                padding: 10px 4px; 
+                border-radius: 0; 
+                box-shadow: none; 
+            }
             h2 { font-size: 20px; margin-bottom: 10px; }
-            textarea { font-size: 20px; height: 90px; padding: 10px; }
+            
+            textarea { 
+                font-size: 20px; 
+                height: 90px; 
+                padding: 10px; 
+                width: 96%;
+                margin: 0 auto 15px auto;
+                display: block;
+            }
+            
+            .top-controls { padding: 0 4px; }
             .action-btn { padding: 10px; font-size: 14px; }
             
-            /* Remove extra left/right space on mobile keyboard */
-            .keyboard { padding: 5px 0; }
+            .keyboard { 
+                padding: 5px 2px; 
+                border-radius: 5px; 
+            }
             
             #main-keys, #symbol-keys { gap: 4px; }
             .key-row { gap: 2px; }
-            .row-2 { padding-left: 10px; padding-right: 10px; }
+            .row-2 { padding-left: 6px; padding-right: 6px; }
             .row-3 { padding-left: 0px; padding-right: 0px; }
             .key { height: 45px; border-radius: 4px; border-bottom-width: 2px; }
             
-            /* Make key text larger on mobile */
+            /* INCREASE HEIGHT SPECIFICALLY FOR MOBILE EDIT MODE */
+            .keyboard.edit-mode .key:not(.control) {
+                height: 85px; /* Extremely tall for easy tapping */
+            }
+
             .key .eng { font-size: 11px; top: 2px; left: 3px; }
             .key .punj { font-size: 22px; margin-top: 6px; }
             .symbol-key .punj { font-size: 20px; }
             .key.control { font-size: 13px; }
             #key-addak .punj { font-size: 24px; }
             
-            .edit-slot { font-size: 15px; }
-            .flip-icon { width: 18px; height: 18px; line-height: 18px; font-size: 10px; right: -5px; }
+            .edit-slot { font-size: 18px; }
 
             /* Force hide flip button icon on mobile keys during edit mode */
             .keyboard.edit-mode .flip-icon {
@@ -314,8 +342,14 @@
 
         @media (max-width: 380px) {
             .key { height: 40px; }
-            .key .punj { font-size: 16px; }
-            .symbol-key .punj { font-size: 16px; }
+            
+            /* Give it ample height even on very small phones during edit */
+            .keyboard.edit-mode .key:not(.control) {
+                height: 75px; 
+            }
+
+            .key .punj { font-size: 18px; }
+            .symbol-key .punj { font-size: 18px; }
             .key .eng { display: none; } 
             .key.control { font-size: 11px; }
         }
@@ -326,7 +360,7 @@
     <div class="container">
         <h2>Gurmukhi Smart Keyboard</h2>
         
-        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus></textarea>
+        <textarea id="punjabiInput" placeholder="ਇੱਥੇ ਟਾਈਪ ਕਰੋ..." autofocus inputmode="none"></textarea>
         
         <div class="top-controls">
             <button class="action-btn" onclick="copyText()">Copy Text</button>
@@ -450,7 +484,6 @@
         let isEditMode = false;
         let selectedSlot = null; 
 
-        // 1. Setup Keys on Load
         document.querySelectorAll('.key').forEach((key, index) => {
             if (!key.id) key.id = 'vkey-' + index;
 
@@ -463,7 +496,6 @@
             }
         });
 
-        // --- Core Keyboard Logic ---
         const keyMap = {
             'q': 'ੌ', 'w': 'ੈ', 'e': 'ਾ', 'r': 'ੀ', 't': 'ੂ', 'y': 'ਬ', 'u': 'ਹ', 'i': 'ਗ', 'o': 'ਦ', 'p': 'ਜ', '[': 'ਡ', ']': '਼',
             'Q': 'ਔ', 'W': 'ਐ', 'E': 'ਆ', 'R': 'ਈ', 'T': 'ਊ', 'Y': 'ਭ', 'U': 'ਙ', 'I': 'ਘ', 'O': 'ਧ', 'P': 'ਝ', '{': 'ਢ', '}': 'ਞ',
@@ -555,18 +587,16 @@
             }
         }
 
-        // --- Password Logic ---
         function askPassword() {
             let pwd = prompt("ਕਿਰਪਾ ਕਰਕੇ ਪਾਸਵਰਡ ਭਰੋ (Enter Password):");
             if (pwd === "2005") {
                 document.getElementById('adminPanel').style.display = 'flex';
-                document.getElementById('authBtn').style.display = 'none'; // Hide the + button
+                document.getElementById('authBtn').style.display = 'none';
             } else if (pwd !== null) {
                 alert("ਗਲਤ ਪਾਸਵਰਡ! (Wrong Password!)");
             }
         }
 
-        // --- Edit Mode & Swapping ---
         function toggleEditMode() {
             isEditMode = !isEditMode;
             const kb = document.getElementById('keyboard');
@@ -575,7 +605,7 @@
             if (isEditMode) {
                 kb.classList.add('edit-mode');
                 editBtn.innerHTML = "✅ Stop Editing";
-                editBtn.style.backgroundColor = "#17a2b8"; // Change color to indicate active state
+                editBtn.style.backgroundColor = "#17a2b8"; 
                 
                 document.querySelectorAll('.key:not(.control)').forEach(key => {
                     const upperChar = key.getAttribute('data-upper') || '';
@@ -681,7 +711,6 @@
             });
         }
 
-        // --- Persistence (Saving and Loading) ---
         function saveLayout(showAlert = false) {
             const layoutData = {};
             document.querySelectorAll('.key:not(.control)').forEach(key => {
