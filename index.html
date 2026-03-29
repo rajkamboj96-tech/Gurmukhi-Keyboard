@@ -44,7 +44,6 @@
 
         h2 { text-align: center; margin-top: 0; }
 
-        /* Added inputmode="none" in HTML below to stop native mobile keyboard */
         textarea {
             width: 100%;
             height: 120px;
@@ -89,7 +88,7 @@
 
         .keyboard-wrapper {
             position: relative;
-            padding-bottom: 30px; 
+            padding-bottom: 20px; 
         }
 
         .keyboard {
@@ -107,7 +106,7 @@
 
         .auth-btn {
             position: absolute;
-            bottom: -5px;
+            bottom: -15px;
             right: 10px;
             background-color: var(--text-color);
             color: white;
@@ -123,6 +122,7 @@
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
+            z-index: 10;
         }
         .auth-btn:active { transform: scale(0.9); }
 
@@ -138,6 +138,14 @@
             border: 1px solid #ddd;
         }
         .admin-panel .action-btn { flex: 1; min-width: 100px; }
+
+        .credit-text {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 25px;
+            font-family: sans-serif;
+        }
 
         #main-keys, #symbol-keys {
             display: flex;
@@ -217,7 +225,6 @@
 
         #key-addak .punj { font-family: var(--addak-font); font-size: 26px; margin-top: 6px; }
 
-        /* --- EDIT MODE SPECIFIC STYLES --- */
         .keyboard.edit-mode .key:not(.control) {
             display: flex;
             flex-direction: column;
@@ -225,12 +232,12 @@
             overflow: visible;
             border-bottom-width: 1px;
             cursor: default;
-            height: 80px; /* INCREASED HEIGHT DURING EDIT ON DESKTOP */
+            height: 80px; 
         }
 
         .keyboard.edit-mode #main-keys, 
         .keyboard.edit-mode #symbol-keys {
-            gap: 12px; /* INCREASED GAP BETWEEN ROWS DURING EDIT */
+            gap: 12px; 
         }
 
         .keyboard.edit-mode .key:not(.control) > .eng,
@@ -244,7 +251,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px; /* Larger font for easy tapping */
+            font-size: 20px; 
             font-family: 'Raavi', 'Gurmukhi MN', sans-serif;
             cursor: pointer;
             box-sizing: border-box;
@@ -286,68 +293,36 @@
         .keyboard.edit-mode .flip-icon { display: block; }
         .flip-icon:active { transform: translateY(-50%) scale(0.9); }
 
-        /* Media Queries - Mobile Adjustments */
         @media (max-width: 650px) {
-            body { 
-                padding: 10px 0; 
-            }
-            .container { 
-                padding: 10px 4px; 
-                border-radius: 0; 
-                box-shadow: none; 
-            }
+            body { padding: 10px 0; }
+            .container { padding: 10px 4px; border-radius: 0; box-shadow: none; }
             h2 { font-size: 20px; margin-bottom: 10px; }
             
-            textarea { 
-                font-size: 20px; 
-                height: 90px; 
-                padding: 10px; 
-                width: 96%;
-                margin: 0 auto 15px auto;
-                display: block;
-            }
-            
+            textarea { font-size: 20px; height: 90px; padding: 10px; width: 96%; margin: 0 auto 15px auto; display: block; }
             .top-controls { padding: 0 4px; }
             .action-btn { padding: 10px; font-size: 14px; }
             
-            .keyboard { 
-                padding: 5px 2px; 
-                border-radius: 5px; 
-            }
-            
+            .keyboard { padding: 5px 2px; border-radius: 5px; }
             #main-keys, #symbol-keys { gap: 4px; }
             .key-row { gap: 2px; }
             .row-2 { padding-left: 6px; padding-right: 6px; }
             .row-3 { padding-left: 0px; padding-right: 0px; }
             .key { height: 45px; border-radius: 4px; border-bottom-width: 2px; }
             
-            /* INCREASE HEIGHT SPECIFICALLY FOR MOBILE EDIT MODE */
-            .keyboard.edit-mode .key:not(.control) {
-                height: 85px; /* Extremely tall for easy tapping */
-            }
-
+            .keyboard.edit-mode .key:not(.control) { height: 85px; }
             .key .eng { font-size: 11px; top: 2px; left: 3px; }
             .key .punj { font-size: 22px; margin-top: 6px; }
             .symbol-key .punj { font-size: 20px; }
             .key.control { font-size: 13px; }
             #key-addak .punj { font-size: 24px; }
-            
             .edit-slot { font-size: 18px; }
 
-            /* Force hide flip button icon on mobile keys during edit mode */
-            .keyboard.edit-mode .flip-icon {
-                display: none !important;
-            }
+            .keyboard.edit-mode .flip-icon { display: none !important; }
         }
 
         @media (max-width: 380px) {
             .key { height: 40px; }
-            
-            /* Give it ample height even on very small phones during edit */
-            .keyboard.edit-mode .key:not(.control) {
-                height: 75px; 
-            }
-
+            .keyboard.edit-mode .key:not(.control) { height: 75px; }
             .key .punj { font-size: 18px; }
             .symbol-key .punj { font-size: 18px; }
             .key .eng { display: none; } 
@@ -476,6 +451,9 @@
             <button class="action-btn save-btn" onclick="saveLayout(true)">💾 Save Permanently</button>
             <button class="action-btn clear-btn" onclick="resetLayout()">🔄 Reset to Default</button>
         </div>
+
+        <div class="credit-text">made by Raj Kamboj 9465428299</div>
+
     </div>
 
     <script>
@@ -712,6 +690,9 @@
         }
 
         function saveLayout(showAlert = false) {
+            // ਜੇਕਰ ਐਡਿਟ ਮੋਡ ਚੱਲ ਰਿਹਾ ਹੈ ਤਾਂ ਉਸਨੂੰ ਬੰਦ ਕਰੋ
+            if (isEditMode) toggleEditMode();
+
             const layoutData = {};
             document.querySelectorAll('.key:not(.control)').forEach(key => {
                 layoutData[key.id] = {
@@ -723,6 +704,10 @@
             
             if(showAlert) {
                 alert("ਕੀਬੋਰਡ ਲੇਆਉਟ ਪੱਕੇ ਤੌਰ 'ਤੇ ਸੇਵ ਹੋ ਗਿਆ ਹੈ! (Layout Saved Permanently!)");
+                
+                // ਐਡਮਿਨ ਪੈਨਲ ਨੂੰ ਲੁਕਾਓ ਅਤੇ "+" ਬਟਨ ਵਾਪਸ ਲਿਆਓ
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('authBtn').style.display = 'flex';
             }
         }
 
